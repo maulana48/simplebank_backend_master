@@ -1,4 +1,5 @@
 DB_URL=postgresql://postgres:root@localhost:5432/backend-master?sslmode=disable
+
 DB_URL_LOCAL=postgresql://postgres:root@172.17.0.2:5432/backend-master?sslmode=disable
 
 postgres:
