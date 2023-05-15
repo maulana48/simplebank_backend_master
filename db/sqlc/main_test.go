@@ -10,8 +10,9 @@ import (
 )
 
 const (
-	dbDriver = "postgres"
-	dbSource = "postgresql://postgres:root@172.17.0.2:5432/backend-master?sslmode=disable"
+	dbDriver      = "postgres"
+	dbSource      = "postgresql://postgres:root@localhost:5432/backend-master?sslmode=disable"
+	dbSourceLocal = "postgresql://postgres:root@172.17.0.2:5432/backend-master?sslmode=disable"
 )
 
 var testQueries *Queries
