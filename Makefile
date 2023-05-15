@@ -10,7 +10,7 @@ migratedown:
 	/usr/local/bin/migrate -path db/migration -database "postgresql://postgres:root@172.17.0.2:5432/backend-master?sslmode=disable" -verbose down
 sqlc:
 	sqlc generate
-testt:
+test:
 	clear && go test -v ./...
 .PHONY:
-	postgres createdb dropdb migrateup migratedown sqlc
+	test postgres createdb dropdb migrateup migratedown sqlc
