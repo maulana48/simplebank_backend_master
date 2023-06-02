@@ -32,6 +32,9 @@ server1:
 sqlc:
 	sqlc generate
 
+mockdb:
+	mockgen -package mockdb -destination db/mock/store.go github.com/maulana48/backend_master_class/simplebank/db/sqlc Store
+
 test:
 	go test -v -cover ./...
 
@@ -39,4 +42,4 @@ test_local:
 	clear && go test -v ./...
 
 .PHONY:
-	postgres createdb dropdb migrateup migratedown sqlc test server
+	postgres createdb dropdb migrateup migratedown sqlc test server mockdb

@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	mockdb "github.com/maulana48/backend_master_class/simplebank/db/mock"
 	db "github.com/maulana48/backend_master_class/simplebank/db/sqlc"
 	"github.com/maulana48/backend_master_class/simplebank/util"
 	"github.com/stretchr/testify/require"
