@@ -1,4 +1,4 @@
-module simplebank
+module github.com/maulana48/backend_master_class/simplebank
 
 go 1.20
 
