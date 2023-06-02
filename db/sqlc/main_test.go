@@ -2,9 +2,9 @@ package db
 
 import (
 	"database/sql"
-	"jwt-paseto-token-in-golang/util"
 	"log"
 	"os"
+	"simplebank/util"
 	"testing"
 
 	_ "github.com/lib/pq"

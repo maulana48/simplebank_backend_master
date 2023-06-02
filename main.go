@@ -2,10 +2,10 @@ package main
 
 import (
 	"database/sql"
-	"jwt-paseto-token-in-golang/api"
-	db "jwt-paseto-token-in-golang/db/sqlc"
-	"jwt-paseto-token-in-golang/util"
 	"log"
+	"simplebank/api"
+	db "simplebank/db/sqlc"
+	"simplebank/util"
 
 	_ "github.com/lib/pq"
 )

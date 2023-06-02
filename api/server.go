@@ -1,7 +1,7 @@
 package api
 
 import (
-	db "jwt-paseto-token-in-golang/db/sqlc"
+	db "simplebank/db/sqlc"
 
 	"github.com/gin-gonic/gin"
 )

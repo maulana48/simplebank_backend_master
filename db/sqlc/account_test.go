@@ -3,7 +3,7 @@ package db
 import (
 	"context"
 	"database/sql"
-	"jwt-paseto-token-in-golang/util"
+	"simplebank/util"
 	"testing"
 	"time"
 
