@@ -4,8 +4,9 @@ import (
 	"database/sql"
 	"log"
 	"os"
-	"simplebank/util"
 	"testing"
+
+	"github.com/maulana48/backend_master_class/simplebank/util"
 
 	_ "github.com/lib/pq"
 )
