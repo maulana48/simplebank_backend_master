@@ -8,6 +8,7 @@ import (
 
 	"github.com/maulana48/backend_master_class/simplebank/util"
 
+	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 )
 
@@ -15,6 +16,9 @@ var testQueries *Queries
 var testDB *sql.DB
 
 func TestMain(m *testing.M) {
+	gin.SetMode(gin.TestMode)
+	os.Exit(m.Run())
+
 	config, err := util.LoadConfig("../../")
 	if err != nil {
 		log.Fatal("cannot load config: ", err)
