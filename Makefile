@@ -23,6 +23,12 @@ migrateup_local:
 migratedown_local:
 	/usr/local/bin/migrate -path db/migration -database "postgresql://postgres:root@172.17.0.2:5432/backend-master?sslmode=disable" -verbose down
 	
+migrateup1:
+	migrate -path db/migration -database "postgresql://postgres:root@172.17.0.2:5432/backend-master?sslmode=disable" -verbose up 1
+
+migratedown1:
+	migrate -path db/migration -database "postgresql://postgres:root@172.17.0.2:5432/backend-master?sslmode=disable" -verbose down 1
+
 server:
 	clear && go run main.go
 
@@ -42,4 +48,4 @@ test_local:
 	clear && go test -v ./...
 
 .PHONY:
-	postgres createdb dropdb migrateup migratedown sqlc test server mockdb
+	postgres createdb dropdb migrateup migratedown migrateup1 migratedown1 sqlc test server mockdb
