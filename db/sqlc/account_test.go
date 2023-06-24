@@ -20,6 +20,7 @@ func createRandomAccount(t *testing.T) Account {
 		Currency: util.RandomCurrency(),
 	}
 
+	t.Log(testQueries, "owner", arg.Owner)
 	account, err := testQueries.CreateAccount(context.Background(), arg)
 	require.NoError(t, err)
 	require.NotEmpty(t, account)
