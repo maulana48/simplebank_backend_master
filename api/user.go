@@ -45,7 +45,7 @@ func (server *Server) createUser(ctx *gin.Context) {
 		Email:          req.Email,
 	}
 
-	user, err := server.store.CreateUser(ctx, arg)
+	user, err := server.Store.CreateUser(ctx, arg)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {

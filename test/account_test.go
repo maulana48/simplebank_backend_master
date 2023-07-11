@@ -6,15 +6,16 @@ import (
 	"testing"
 	"time"
 
+	db "github.com/maulana48/backend_master_class/simplebank/db/sqlc"
 	"github.com/maulana48/backend_master_class/simplebank/util"
 
 	"github.com/stretchr/testify/require"
 )
 
-func createRandomAccount(t *testing.T) Account {
+func createRandomAccount(t *testing.T) db.Account {
 	user := createRandomUser(t)
 
-	arg := CreateAccountParams{
+	arg := db.CreateAccountParams{
 		Owner:    user.Username,
 		Balance:  util.RandomMoney(),
 		Currency: util.RandomCurrency(),
@@ -57,7 +58,7 @@ func TestGetAccount(t *testing.T) {
 func TestUpdateAccount(t *testing.T) {
 	account1 := createRandomAccount(t)
 
-	arg := UpdateAccountParams{
+	arg := db.UpdateAccountParams{
 		ID:      account1.ID,
 		Balance: util.RandomMoney(),
 	}
@@ -88,7 +89,7 @@ func TestListAccounts(t *testing.T) {
 		createRandomAccount(t)
 	}
 
-	arg := ListAccountsParams{
+	arg := db.ListAccountsParams{
 		Limit:  5,
 		Offset: 5,
 	}

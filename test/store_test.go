@@ -5,11 +5,12 @@ import (
 	"fmt"
 	"testing"
 
+	db "github.com/maulana48/backend_master_class/simplebank/db/sqlc"
 	"github.com/stretchr/testify/require"
 )
 
 func TestTransferTx(t *testing.T) {
-	store := NewStore(testDB)
+	store := db.NewStore(testDB)
 
 	account1 := createRandomAccount(t)
 	account2 := createRandomAccount(t)
@@ -19,16 +20,16 @@ func TestTransferTx(t *testing.T) {
 	amount := int64(10)
 
 	errs := make(chan error)
-	results := make(chan TransferTxResult)
+	results := make(chan db.TransferTxResult)
 
 	// run n concurrent transfer transaction
 	for i := 0; i < n; i++ {
 		txName := fmt.Sprintf("tx %d", i+1)
 
 		go func() {
-			ctx := context.WithValue(context.Background(), txKey, txName)
+			ctx := context.WithValue(context.Background(), db.TxKey, txName)
 
-			result, err := store.TransferTx(ctx, TransferTxParams{
+			result, err := store.TransferTx(ctx, db.TransferTxParams{
 				FromAccountID: account1.ID,
 				ToAccountID:   account2.ID,
 				Amount:        amount,
@@ -120,7 +121,7 @@ func TestTransferTx(t *testing.T) {
 }
 
 func TestTransferTxDeadlock(t *testing.T) {
-	store := NewStore(testDB)
+	store := db.NewStore(testDB)
 
 	account1 := createRandomAccount(t)
 	account2 := createRandomAccount(t)
@@ -140,7 +141,7 @@ func TestTransferTxDeadlock(t *testing.T) {
 		}
 
 		go func() {
-			_, err := store.TransferTx(context.Background(), TransferTxParams{
+			_, err := store.TransferTx(context.Background(), db.TransferTxParams{
 				FromAccountID: fromAccountID,
 				ToAccountID:   toAccountID,
 				Amount:        amount,
