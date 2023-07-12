@@ -8,7 +8,7 @@ import (
 	db "github.com/maulana48/backend_master_class/simplebank/db/sqlc"
 )
 
-func newTestServer(t *testing.T, store db.Store) *Server {
+func NewTestServer(t *testing.T, store db.Store) *Server {
 	// config := util.Config{
 	// 	TokenSymmetricKey:   util.RandomString(32),
 	// 	AccessTokenDuration: time.Minute,
