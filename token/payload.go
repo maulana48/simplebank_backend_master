@@ -35,7 +35,9 @@ var (
 	ErrInvalidToken = errors.New("token is invalid")
 )
 
+// implement valid() method of jwt.Claims interface
 func (payload *Payload) Valid() error {
+	// check token expiration
 	if time.Now().After(payload.ExpiredAt) {
 		return ErrExpiredToken
 	}
