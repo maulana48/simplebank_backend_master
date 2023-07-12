@@ -6,24 +6,27 @@ import (
 	"github.com/go-playground/validator/v10"
 	db "github.com/maulana48/backend_master_class/simplebank/db/sqlc"
 	"github.com/maulana48/backend_master_class/simplebank/token"
+	util "github.com/maulana48/backend_master_class/simplebank/util"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 )
 
 type Server struct {
+	Config     util.Config
 	Store      db.Store
 	TokenMaker token.Maker
 	Router     *gin.Engine
 }
 
-func NewServer(store db.Store) (*Server, error) {
-	tokenMaker, err := token.NewPasetoMaker("")
+func NewServer(config util.Config, store db.Store) (*Server, error) {
+	tokenMaker, err := token.NewPasetoMaker(config.TokenSymmetricKey)
 	if err != nil {
 		return nil, fmt.Errorf("cannot create token maker : %w", err)
 	}
 
 	server := &Server{
+		Config:     config,
 		Store:      store,
 		TokenMaker: tokenMaker,
 	}
@@ -34,7 +37,6 @@ func NewServer(store db.Store) (*Server, error) {
 	}
 
 	router.POST("/users", server.createUser)
-
 	router.POST("/accounts", server.createAccount)
 	router.GET("/accounts/:id", server.getAccount)
 	router.GET("/accounts", server.listAccount)
