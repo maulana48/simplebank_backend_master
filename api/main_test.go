@@ -8,16 +8,16 @@ import (
 	db "github.com/maulana48/backend_master_class/simplebank/db/sqlc"
 )
 
-func NewTestServer(t *testing.T, store db.Store) *Server {
+func NewTestServer(t *testing.T, store db.Store) (*Server, error) {
 	// config := util.Config{
 	// 	TokenSymmetricKey:   util.RandomString(32),
 	// 	AccessTokenDuration: time.Minute,
 	// }
 
-	server := NewServer(store)
+	server, err := NewServer(store)
 	// require.NoError(t, err)
 
-	return server
+	return server, err
 }
 
 func TestMain(m *testing.M) {
