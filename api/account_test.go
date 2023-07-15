@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -87,10 +88,15 @@ func TestGetAccountAPI(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
+			config, err := util.LoadConfig(".")
+			if err != nil {
+				log.Fatal("cannot load config:", err)
+			}
+
 			store := mockdb.NewMockStore(ctrl)
 			tc.buildStubs(store)
 
-			server, err := NewServer(store)
+			server, err := NewServer(config, store)
 			require.NoError(t, err)
 			recorder := httptest.NewRecorder()
 

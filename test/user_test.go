@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -219,11 +220,15 @@ func TestCreateUserAPI(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
+			config, err := util.LoadConfig(".")
+			if err != nil {
+				log.Fatal("cannot load config:", err)
+			}
 
 			store := mockdb.NewMockStore(ctrl)
 			tc.buildStubs(store)
 
-			server, err := api.NewServer(store)
+			server, err := api.NewServer(config, store)
 			recorder := httptest.NewRecorder()
 
 			// Marshal body data to JSON
