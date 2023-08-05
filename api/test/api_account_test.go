@@ -108,7 +108,7 @@ func TestGetAccountAPI(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			config, err := util.LoadConfig("../")
+			config, err := util.LoadConfig("../../")
 			if err != nil {
 				log.Fatal("cannot load config:", err)
 			}
