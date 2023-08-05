@@ -11,6 +11,7 @@ import (
 
 func TestTransferTx(t *testing.T) {
 	store := db.NewStore(testDB)
+	fmt.Println("store :", store, &store)
 
 	account1 := createRandomAccount(t)
 	account2 := createRandomAccount(t)
