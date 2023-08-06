@@ -2,17 +2,27 @@ package api
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/lib/pq"
 	db "github.com/maulana48/backend_master_class/simplebank/db/sqlc"
+	"github.com/maulana48/backend_master_class/simplebank/token"
 
 	"github.com/gin-gonic/gin"
 )
 
+/*
+Account api authorization rule :
+- create account : only account of logged user
+- get account : only get account of logged user
+- list account : only list account of logged user
+*/
+
 type createAccountRequest struct {
-	Owner    string `json:"owner" binding:"required"`
+	// change owner field into logged user only
+	// Owner    string `json:"owner" binding:"required"`
 	Currency string `json:"currency" binding:"required,currency"`
 }
 
@@ -32,8 +42,10 @@ func (server *Server) createAccount(ctx *gin.Context) {
 		return
 	}
 
+	// get token from ctx (from what key value for authorization we set in high order func), then parse it into token payload
+	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
 	arg := db.CreateAccountParams{
-		Owner:    req.Owner,
+		Owner:    authPayload.Username,
 		Currency: req.Currency,
 		Balance:  0,
 	}
@@ -73,6 +85,14 @@ func (server *Server) getAccount(ctx *gin.Context) {
 		return
 	}
 
+	// get token from ctx (from what key value for authorization we set in high order func), then parse it into token payload
+	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
+	if authPayload.Username != account.Owner {
+		err := errors.New("account doesn't belong to the authenticated user")
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
+
 	ctx.JSON(http.StatusOK, account)
 }
 
@@ -83,7 +103,11 @@ func (server *Server) listAccount(ctx *gin.Context) {
 		return
 	}
 
+	// get token from ctx (from what key value for authorization we set in high order func), then parse it into token payload
+	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
+
 	arg := db.ListAccountsParams{
+		Owner:  authPayload.Username,
 		Limit:  req.PageSize,
 		Offset: (req.PageID - 1) * req.PageSize,
 	}

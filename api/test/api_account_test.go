@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -10,19 +11,48 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/golang/mock/gomock"
 	"github.com/maulana48/backend_master_class/simplebank/api"
 	mockdb "github.com/maulana48/backend_master_class/simplebank/db/mock"
 	db "github.com/maulana48/backend_master_class/simplebank/db/sqlc"
+	"github.com/maulana48/backend_master_class/simplebank/token"
 	"github.com/maulana48/backend_master_class/simplebank/util"
 	"github.com/stretchr/testify/require"
 )
 
-func randomAccount() db.Account {
+func createRandomUser(t *testing.T) db.User {
+	hashedPassword, err := util.HashPassword(util.RandomString(6))
+	require.NoError(t, err)
+
+	arg := db.CreateUserParams{
+		Username:       util.RandomOwner(),
+		HashedPassword: hashedPassword,
+		FullName:       util.RandomOwner(),
+		Email:          util.RandomEmail(),
+	}
+
+	t.Log(testQueries, arg.Email)
+	user, err := testQueries.CreateUser(context.Background(), arg)
+	require.NoError(t, err)
+
+	require.NotEmpty(t, user)
+
+	require.Equal(t, arg.Username, user.Username)
+	require.Equal(t, arg.HashedPassword, user.HashedPassword)
+	require.Equal(t, arg.FullName, user.FullName)
+	require.Equal(t, arg.Email, user.Email)
+	require.NotZero(t, user.CreatedAt)
+	require.True(t, user.PasswordChangedAt.IsZero())
+
+	return user
+}
+
+func randomAccount(owner string) db.Account {
 	return db.Account{
 		ID:       util.RandomInt(1, 1000),
-		Owner:    util.RandomOwner(),
+		Owner:    owner, // set owner to logged user
 		Balance:  util.RandomMoney(),
 		Currency: util.RandomCurrency(),
 	}
@@ -39,17 +69,26 @@ func requireBodyMatchAccount(t *testing.T, body *bytes.Buffer, account db.Accoun
 }
 
 func TestGetAccountAPI(t *testing.T) {
-	account := randomAccount()
+	user := createRandomUser(t)
+	account := randomAccount(user.Username)
 
 	testCases := []struct {
-		name          string
-		accountID     int64
+		name      string
+		accountID int64
+		// setup the request header authorization with token maker
+		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		buildStubs    func(store *mockdb.MockStore)
 		checkResponse func(t *testing.T, recoder *httptest.ResponseRecorder)
 	}{
 		{
 			name:      "OK",
 			accountID: account.ID,
+			setupAuth: func(t *testing.T,
+				request *http.Request,
+				tokenMaker token.Maker,
+			) {
+				addAuthorization(t, request, tokenMaker, api.AllowedType, user.Username, time.Minute)
+			},
 			buildStubs: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					GetAccount(gomock.Any(), gomock.Eq(account.ID)).
@@ -64,6 +103,12 @@ func TestGetAccountAPI(t *testing.T) {
 		{
 			name:      "NotFound",
 			accountID: account.ID,
+			setupAuth: func(t *testing.T,
+				request *http.Request,
+				tokenMaker token.Maker,
+			) {
+				addAuthorization(t, request, tokenMaker, api.AllowedType, user.Username, time.Minute)
+			},
 			buildStubs: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					GetAccount(gomock.Any(), gomock.Eq(account.ID)).
@@ -77,6 +122,12 @@ func TestGetAccountAPI(t *testing.T) {
 		{
 			name:      "InternalError",
 			accountID: account.ID,
+			setupAuth: func(t *testing.T,
+				request *http.Request,
+				tokenMaker token.Maker,
+			) {
+				addAuthorization(t, request, tokenMaker, api.AllowedType, user.Username, time.Minute)
+			},
 			buildStubs: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					GetAccount(gomock.Any(), gomock.Eq(account.ID)).
@@ -90,6 +141,12 @@ func TestGetAccountAPI(t *testing.T) {
 		{
 			name:      "InvalidID",
 			accountID: 0,
+			setupAuth: func(t *testing.T,
+				request *http.Request,
+				tokenMaker token.Maker,
+			) {
+				addAuthorization(t, request, tokenMaker, api.AllowedType, user.Username, time.Minute)
+			},
 			buildStubs: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					GetAccount(gomock.Any(), gomock.Any()).
@@ -124,6 +181,7 @@ func TestGetAccountAPI(t *testing.T) {
 			request, err := http.NewRequest(http.MethodGet, url, nil)
 			require.NoError(t, err)
 
+			tc.setupAuth(t, request, server.TokenMaker)
 			server.Router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)
 		})

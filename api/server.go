@@ -37,10 +37,15 @@ func NewServer(config util.Config, store db.Store) (*Server, error) {
 	}
 
 	router.POST("/users", server.createUser)
-	router.POST("/accounts", server.createAccount)
-	router.GET("/accounts/:id", server.getAccount)
-	router.GET("/accounts", server.listAccount)
-	router.POST("/transfers", server.createTransfer)
+
+	// make route group with prefix "/" and use authMiddleware high order func as middleware
+	authRoutes := router.Group("/").Use(AuthMiddleware(server.TokenMaker))
+
+	authRoutes.GET("/accounts", server.listAccount)
+	authRoutes.GET("/accounts/:id", server.getAccount)
+	authRoutes.POST("/accounts", server.createAccount)
+
+	authRoutes.POST("/transfers", server.createTransfer)
 
 	server.Router = router
 	return server, nil

@@ -1,6 +1,8 @@
 package api
 
 import (
+	"database/sql"
+	"log"
 	"os"
 	"testing"
 	"time"
@@ -10,6 +12,10 @@ import (
 	db "github.com/maulana48/backend_master_class/simplebank/db/sqlc"
 	"github.com/maulana48/backend_master_class/simplebank/util"
 )
+
+var testQueries *db.Queries
+
+// var testDB *sql.DB
 
 func NewTestServer(t *testing.T, store db.Store) (*api.Server, error) {
 	config := util.Config{
@@ -25,6 +31,19 @@ func NewTestServer(t *testing.T, store db.Store) (*api.Server, error) {
 
 func TestMain(m *testing.M) {
 	gin.SetMode(gin.TestMode)
+
+	config, err := util.LoadConfig("../../")
+	if err != nil {
+		log.Fatal("cannot load config: ", err)
+	}
+
+	testDB, err := sql.Open(config.DBDriver, config.DBSourceLocal)
+	if err != nil {
+		log.Fatal("cannot connect to db:", err)
+	}
+	// fmt.Println(conn)
+
+	testQueries = db.New(testDB)
 
 	os.Exit(m.Run())
 }
